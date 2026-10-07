@@ -37,4 +37,12 @@ Implementation commit: e6cfc25
 Merged/pushed Phase 1 state: aa89085
 
 ### Current Status
-Phase 1 complete. No Phase 2 implementation is recorded here yet.
+Phase 1 complete.
+
+## Phase 2
+
+### Module 3 — EDA
+- Added R/06_phase2_eda.R.
+- The script covers descriptive statistics, IQR-based outlier identification, correlation analysis, and branch/mentorship/batch comparisons.
+- The script writes analysis tables to outputs/tables/.
+- Phase 2 numerical results are intentionally not recorded here until the script is executed and verified.
