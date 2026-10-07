@@ -26,10 +26,22 @@ The script is designed to produce, when executed:
 
 Analysis tables are written to `outputs/tables/`.
 
-## Evidence boundary
+## Verified Results
 
-This file records the Phase 2 implementation scope. Numerical results are not claimed as completed until the script is executed and verified.
+The Phase 2 EDA script was executed in RStudio and its generated analysis tables were verified.
 
-## Next step
+Key verified relationships:
+- Event Attendance ↔ Email Response: 0.214
+- Event Attendance ↔ Donations: 0.064
+- Networking Events ↔ Email Response: -0.0215
+- Alumni Meetings ↔ Email Response: 0.0101
 
-Run the EDA script, inspect the actual results, then use those verified findings to choose the Module 4 visualizations.
+The Module 4 visualization script was also executed successfully. Five visualization outputs were generated and visually inspected.
+
+See `docs/PHASE_2_CHECKPOINT.md` for the verified Phase 2 record and evidence list.
+
+## Status
+
+Phase 2 — Module 3 and Module 4 implementation and verification complete.
+
+Next step: prepare Report 2 from the verified Phase 2 evidence.
