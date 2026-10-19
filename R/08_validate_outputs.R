@@ -17,9 +17,9 @@ raw <- readr::read_csv(raw_path, show_col_types = FALSE)
 clean <- readr::read_csv(clean_path, show_col_types = FALSE)
 
 expected_columns <- c(
-  "Alumni_ID", "Name", "Graduation_Year", "Branch", "Batch",
-  "Event_Attendance", "Email_Response", "Donations",
-  "Networking_Events", "Alumni_Meetings", "Mentorship"
+  "Alumni_ID", "Name", "Batch", "Branch", "Graduation_Year",
+  "Event_Attendance", "Email_Response", "Donations", "Mentorship",
+  "Networking_Events", "Alumni_Meetings"
 )
 
 if (nrow(raw) != 250L) stop("Expected 250 raw records; found ", nrow(raw), ".")
