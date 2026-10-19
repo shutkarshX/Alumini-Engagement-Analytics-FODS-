@@ -72,3 +72,9 @@ Phase 1 complete.
 - Added `.github/workflows/r-validation.yml` to run scripts 01–07 and then the validation script on pushes to `main`, pull requests, and manual dispatch.
 - Documented the validation workflow in `README.md`.
 - GitHub Actions runs were triggered by the commits. Their status must be checked before recording CI as passing; this log does not claim a successful hosted run yet.
+
+### CI validation correction — 20 Oct 2026
+- The first hosted run executed scripts 01–07 successfully but the new validator failed because its expected column order did not match the actual CSV schema.
+- Corrected `R/08_validate_outputs.R` to match the observed raw dataset header order: `Alumni_ID, Name, Batch, Branch, Graduation_Year, Event_Attendance, Email_Response, Donations, Mentorship, Networking_Events, Alumni_Meetings`.
+- Fix commit: `a37a92a`.
+- A new GitHub Actions run is queued/running; do not mark CI as passing until its result is successful.
