@@ -19,6 +19,7 @@
 - The dataset is synthetic because institutional alumni records were unavailable; never present it as real institutional data.
 - College report PDFs and editable drafts belong in the private `shutkarshX/PBL-Reports` repository. Code, datasets, outputs, and technical docs belong here.
 - Keep the preferred original report presentation where possible, but reconcile it with explicit requirements in the latest NIET guide.
+- The user will upload the Report 2 PDF/DOCX into the private PBL-Reports repository using local Git commands; do not attempt binary upload through the connector. This does not prevent working on report content, compliance, or other project files.
 
 ## Verified Phase 1
 - Created a synthetic dataset with 250 raw records and 11 variables.
@@ -54,6 +55,7 @@
 - Eight plot files exist overall when Phase 1's three plots are included.
 - Evidence commit: `1bb036a`.
 - Phase 2 checkpoint: `docs/PHASE_2_CHECKPOINT.md`.
+- Added `R/08_validate_outputs.R` and `.github/workflows/r-validation.yml` for reproducibility checks; hosted CI is pending its first completed run.
 
 ## Report 2 state
 Local drafts created in the working session:
@@ -79,6 +81,6 @@ Resolve these items against the applicable faculty instructions before calling t
 1. Audit/rework Report 2 to satisfy the latest NIET guide while retaining the user's preferred visual style where possible.
 2. Capture a genuine RStudio screenshot if screenshot evidence is required.
 3. Export and verify the final PDF page count and file size.
-4. Manually upload the final PDF to `PBL-Reports/Semester 3/FODS/` if binary upload via the GitHub connector is unavailable; optionally archive the DOCX too.
-5. Update `Semester 3/FODS/REPORT_PLAN.md` and central `PBL_CONTEXT.md` after archival.
+4. The user will upload the approved PDF (and optionally DOCX) to `PBL-Reports/Semester 3/FODS/` from their PC; assistant should continue report-content/compliance work and other repository tasks without attempting the binary upload.
+5. After the user confirms archival, update `Semester 3/FODS/REPORT_PLAN.md` and central `PBL_CONTEXT.md` with the exact filenames/commit.
 6. Verify exact Module 5 syllabus topics before starting Phase 3.
