@@ -18,6 +18,7 @@ Explore alumni engagement patterns using data preparation, descriptive statistic
 - `R/01_data_import.R` through `R/05_basic_visualization.R` — Phase 1 workflow.
 - `R/06_phase2_eda.R` — Module 3 EDA and six analysis tables.
 - `R/07_phase2_visualization.R` — Module 4 visualizations.
+- `R/08_validate_outputs.R` — checks dataset invariants and required generated outputs.
 - `outputs/tables/` — generated CSV analysis tables.
 - `outputs/plots/` — generated PNG visualizations.
 - `docs/` — development log, phase documentation, research notes, and checkpoints.
@@ -46,6 +47,7 @@ Open the repository folder as the RStudio working directory. Run scripts in orde
 5. `R/05_basic_visualization.R`
 6. `R/06_phase2_eda.R`
 7. `R/07_phase2_visualization.R`
+8. `R/08_validate_outputs.R` — run after scripts 01–07 to validate the cleaned data and generated files.
 
 Run scripts from the repository root so relative paths resolve correctly. The cleaning step writes `data/processed/alumni_engagement_clean.csv`; the Phase 2 scripts use that processed dataset and write generated outputs under `outputs/`.
 
@@ -73,3 +75,7 @@ Phase 2 plots:
 - `08_attendance_vs_email_response.png`
 
 See `docs/PHASE_2_CHECKPOINT.md` for verified findings and limitations, and `docs/DEVELOPMENT_LOG.md` for the implementation history.
+
+## Automated reproducibility check
+
+GitHub Actions runs scripts 01–07 and then `R/08_validate_outputs.R` on pushes to `main`, pull requests, and manual workflow dispatches. The validation checks the expected raw/clean dataset dimensions, column schema, absence of missing values and duplicate IDs in the cleaned data, and presence of all six Phase 2 tables and eight plots. The workflow has been added; its first hosted run must pass before CI is described as verified.
