@@ -65,3 +65,10 @@ Phase 1 complete.
 - Evidence committed and pushed to main.
 - Commit: `1bb036a`.
 - Detailed checkpoint: `docs/PHASE_2_CHECKPOINT.md`.
+
+
+### Reproducibility validation and CI — added, first run pending
+- Added `R/08_validate_outputs.R` to check the expected raw and cleaned dataset schema/dimensions, zero missing values and unique IDs in the cleaned data, and the expected generated output files.
+- Added `.github/workflows/r-validation.yml` to run scripts 01–07 and then the validation script on pushes to `main`, pull requests, and manual dispatch.
+- Documented the validation workflow in `README.md`.
+- GitHub Actions runs were triggered by the commits. Their status must be checked before recording CI as passing; this log does not claim a successful hosted run yet.
