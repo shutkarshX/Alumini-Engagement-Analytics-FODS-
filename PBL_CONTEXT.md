@@ -78,9 +78,7 @@ Resolve these items against the applicable faculty instructions before calling t
 - Phase 3 / Final Report: Module 5 onward plus final integration — not yet completed.
 
 ## Next actions
-1. Audit/rework Report 2 to satisfy the latest NIET guide while retaining the user's preferred visual style where possible.
-2. Capture a genuine RStudio screenshot if screenshot evidence is required.
-3. Export and verify the final PDF page count and file size.
-4. The user will upload the approved PDF (and optionally DOCX) to `PBL-Reports/Semester 3/FODS/` from their PC; assistant should continue report-content/compliance work and other repository tasks without attempting the binary upload.
-5. After the user confirms archival, update `Semester 3/FODS/REPORT_PLAN.md` and central `PBL_CONTEXT.md` with the exact filenames/commit.
-6. Verify exact Module 5 syllabus topics before starting Phase 3.
+1. User reviews and uploads `FODS_Report_2_REVISED.pdf` to `PBL-Reports/Semester 3/FODS/` from their PC; optionally upload the DOCX too.
+2. Confirm with faculty whether a separate source-code appendix is mandatory despite the user's preference not to add one.
+3. After the user confirms archival, record the exact filenames/commit in the private archive.
+4. Verify exact Module 5 syllabus topics before starting Phase 3.
