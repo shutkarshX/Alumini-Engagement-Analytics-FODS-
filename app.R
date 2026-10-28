@@ -150,6 +150,31 @@ ui <- fluidPage(
           downloadButton("download_plot", "Download chart (PNG)", class = "btn-primary")))
       )
     ),
+    tabPanel("Data Quality & IG",
+      br(),
+      fluidRow(
+        column(12, div(class = "panel",
+          h4("Data quality overview"),
+          p(class = "small-note", "Checks compare the repository's raw CSV with its cleaned CSV when the raw file is available."),
+          tableOutput("quality_overview")
+        ))
+      ),
+      fluidRow(
+        column(5, div(class = "panel",
+          h4("Column-level missing values"),
+          tableOutput("quality_missing")
+        )),
+        column(7, div(class = "panel",
+          h4("Information Gain explorer"),
+          p("Information Gain estimates how much a predictor reduces uncertainty about a categorical target. Numeric predictors are split into quartile-based groups for this calculation."),
+          selectInput("ig_target", "Target category", choices = c("Mentorship", "Branch"), selected = "Mentorship"),
+          selectInput("ig_predictor", "Predictor variable", choices = setdiff(names(alumni), c("Alumni_ID", "Name", "Mentorship")), selected = "Branch"),
+          plotOutput("ig_plot", height = 300),
+          tableOutput("ig_table"),
+          p(class = "small-note", "Information Gain is measured in bits. Results describe this synthetic demonstration dataset and do not imply causation.")
+        ))
+      )
+    ),
     tabPanel("Insights & Exports",
       br(),
       fluidRow(
@@ -183,6 +208,88 @@ server <- function(input, output, session) {
   output$metric_variables <- renderText(ncol(alumni))
   output$metric_missing <- renderText(sum(is.na(alumni)))
   output$metric_duplicates <- renderText(sum(duplicated(alumni$Alumni_ID)))
+
+  output$quality_overview <- renderTable({
+    raw_n <- if (is.null(raw_alumni)) NA_integer_ else nrow(raw_alumni)
+    raw_missing <- if (is.null(raw_alumni)) NA_integer_ else sum(is.na(raw_alumni))
+    raw_dupes <- if (is.null(raw_alumni)) NA_integer_ else sum(duplicated(raw_alumni$Alumni_ID))
+    data.frame(
+      Check = c("Raw records", "Cleaned records", "Records removed during cleaning",
+                "Raw missing values", "Cleaned missing values",
+                "Raw duplicate alumni IDs", "Cleaned duplicate alumni IDs",
+                "Cleaned columns"),
+      Result = c(raw_n, nrow(alumni),
+                 if (is.na(raw_n)) NA_integer_ else raw_n - nrow(alumni),
+                 raw_missing, sum(is.na(alumni)), raw_dupes,
+                 sum(duplicated(alumni$Alumni_ID)), ncol(alumni))
+    )
+  }, striped = TRUE, bordered = FALSE, spacing = "s")
+
+  output$quality_missing <- renderTable({
+    data.frame(
+      Variable = names(alumni),
+      Missing = vapply(alumni, function(x) sum(is.na(x)), integer(1)),
+      Missing_Percent = round(vapply(alumni, function(x) mean(is.na(x)) * 100, numeric(1)), 2)
+    ) %>% arrange(desc(Missing), desc(Missing_Percent))
+  }, striped = TRUE, bordered = FALSE, spacing = "s")
+
+  observe({
+    predictors <- setdiff(names(alumni), c("Alumni_ID", "Name", input$ig_target))
+    if (!length(predictors)) predictors <- setdiff(names(alumni), c("Alumni_ID", "Name"))
+    updateSelectInput(session, "ig_predictor", choices = predictors,
+                      selected = if (input$ig_predictor %in% predictors) input$ig_predictor else predictors[1])
+  })
+
+  information_gain <- reactive({
+    req(input$ig_target, input$ig_predictor)
+    validate(need(input$ig_target %in% names(alumni), "Choose a valid target."),
+             need(input$ig_predictor %in% names(alumni), "Choose a valid predictor."),
+             need(input$ig_target != input$ig_predictor, "Target and predictor must be different."))
+    d <- alumni[, c(input$ig_target, input$ig_predictor), drop = FALSE]
+    names(d) <- c("target", "predictor")
+    d <- d[complete.cases(d), , drop = FALSE]
+    validate(need(nrow(d) > 1, "Not enough complete records for this calculation."),
+             need(length(unique(d$target)) > 1, "The target must contain at least two categories."))
+    if (is.numeric(d$predictor)) {
+      breaks <- unique(as.numeric(stats::quantile(d$predictor, probs = seq(0, 1, .25), na.rm = TRUE, type = 7)))
+      if (length(breaks) >= 3) {
+        d$predictor <- cut(d$predictor, breaks = breaks, include.lowest = TRUE, ordered_result = TRUE)
+      } else {
+        d$predictor <- factor(d$predictor)
+      }
+    } else {
+      d$predictor <- as.factor(d$predictor)
+    }
+    d <- d[!is.na(d$predictor), , drop = FALSE]
+    entropy <- function(x) {
+      p <- as.numeric(table(x)) / length(x)
+      p <- p[p > 0]
+      -sum(p * log2(p))
+    }
+    base_entropy <- entropy(d$target)
+    groups <- split(d$target, d$predictor, drop = TRUE)
+    weighted_entropy <- sum(vapply(groups, function(x) length(x) / nrow(d) * entropy(x), numeric(1)))
+    data.frame(
+      Target = input$ig_target,
+      Predictor = input$ig_predictor,
+      Records_Used = nrow(d),
+      Target_Entropy_Bits = round(base_entropy, 4),
+      Conditional_Entropy_Bits = round(weighted_entropy, 4),
+      Information_Gain_Bits = round(max(0, base_entropy - weighted_entropy), 4)
+    )
+  })
+
+  output$ig_plot <- renderPlot({
+    d <- information_gain()
+    ggplot(d, aes(x = Predictor, y = Information_Gain_Bits)) +
+      geom_col(fill = "#4058c8", width = .55) +
+      geom_text(aes(label = round(Information_Gain_Bits, 4)), vjust = -0.5, size = 4) +
+      scale_y_continuous(expand = expansion(mult = c(0, .2))) +
+      labs(x = NULL, y = "Information Gain (bits)", title = "Information Gain for selected predictor") +
+      theme_minimal(base_size = 12)
+  })
+
+  output$ig_table <- renderTable(information_gain(), digits = 4, striped = TRUE, bordered = FALSE, spacing = "s")
 
   output$overview_batch <- renderPlot({
     d <- alumni %>% group_by(Batch) %>% summarise(Mean = mean(Event_Attendance, na.rm = TRUE), .groups = "drop")
