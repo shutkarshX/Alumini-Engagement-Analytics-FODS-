@@ -3,16 +3,45 @@
 **Course:** Foundations of Data Science (CCSDS0301)  
 **Domain:** Educational Analytics  
 **SDG:** SDG 4 — Quality Education  
-**Stack:** R, RStudio, readr, dplyr, tidyr, ggplot2
+**Stack:** R, RStudio, Shiny, readr, dplyr, tidyr, ggplot2
 
 ## Objective
 
-Explore alumni engagement patterns using data preparation, descriptive statistics, exploratory data analysis, relationship analysis, and visualizations.
+Explore alumni engagement patterns using data preparation, descriptive statistics, exploratory data analysis, relationship analysis, and visualizations. The repository includes a reproducible R workflow and an interactive Shiny analytics studio.
 
 **Dataset limitation:** The project uses synthetic data because institutional alumni records were unavailable. Results must not be presented as actual institutional findings.
 
+## Interactive application
+
+The initial Shiny application is in `app.R`. It includes:
+- Overview metrics and a batch-level engagement chart.
+- Filterable data explorer with CSV export.
+- Group comparisons by branch, batch, and mentorship.
+- Selectable correlation/relationship analysis.
+- A visualization lab for histograms, boxplots, and scatterplots.
+- Descriptive findings and downloadable summary/correlation tables.
+
+The app source has been committed, but it must be run and manually tested in R/RStudio before it is described as fully validated.
+
+### Launch the app
+
+Open the repository root as the working directory in RStudio, then install any missing packages:
+
+```r
+install.packages(c("shiny", "readr", "dplyr", "tidyr", "ggplot2"))
+```
+
+Run the app:
+
+```r
+shiny::runApp("app.R")
+```
+
+The app reads `data/processed/alumni_engagement_clean.csv`. If that file is missing, run the data workflow below first.
+
 ## Repository structure
 
+- `app.R` — interactive Shiny analytics studio.
 - `data/raw/` — original synthetic dataset with deliberate data-quality issues.
 - `data/processed/` — cleaned dataset produced by the cleaning workflow.
 - `R/01_data_import.R` through `R/05_basic_visualization.R` — Phase 1 workflow.
@@ -24,19 +53,7 @@ Explore alumni engagement patterns using data preparation, descriptive statistic
 - `docs/` — development log, phase documentation, research notes, and checkpoints.
 - `PBL_CONTEXT.md` — technical handoff and verified project status.
 
-## Requirements
-
-- R 4.6.1 or a compatible recent R version
-- RStudio recommended
-- R packages: `readr`, `dplyr`, `tidyr`, `ggplot2`
-
-Install missing packages in the R console:
-
-```r
-install.packages(c("readr", "dplyr", "tidyr", "ggplot2"))
-```
-
-## Run the workflow
+## Run the analysis workflow
 
 Open the repository folder as the RStudio working directory. Run scripts in order:
 
@@ -55,7 +72,7 @@ Run scripts from the repository root so relative paths resolve correctly. The cl
 
 1. **Phase 1 — Modules 1–2:** import, quality inspection, cleaning, descriptive exploration, initial visualization.
 2. **Phase 2 — Modules 3–4:** EDA, IQR outlier identification, correlation and comparison analysis, five additional visualizations.
-3. **Phase 3 — Module 5 and final integration:** not yet completed; confirm the exact Module 5 syllabus topics before planning the implementation.
+3. **Phase 3 — Module 5 and final integration:** still pending syllabus confirmation and further implementation. The Shiny app is an initial product layer and has not yet been manually validated.
 
 ## Verified Phase 2 outputs
 
