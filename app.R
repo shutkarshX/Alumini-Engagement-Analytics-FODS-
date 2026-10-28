@@ -55,10 +55,6 @@ ui <- fluidPage(
       h2("Alumni Engagement Analytics Studio"),
       p("Explore engagement patterns. Inspect the data. Build evidence-backed insights.")
   ),
-  div(class = "notice",
-      strong("Research note: "),
-      "This project uses synthetic demonstration data, not actual institutional alumni records. Patterns are descriptive and do not establish causation."
-  ),
   tabsetPanel(
     id = "main_tabs",
     tabPanel("Overview",
