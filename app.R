@@ -122,6 +122,10 @@ ui <- fluidPage(
       fluidRow(
         column(3, div(class = "panel",
           h4("Analysis controls"),
+          p(class = "small-note", "Filter the cohort first; all comparisons and correlations below use these selections."),
+          selectInput("analysis_branch", "Branch", choices = c("All")),
+          selectInput("analysis_batch", "Graduation batch", choices = c("All")),
+          selectInput("analysis_mentorship", "Mentorship", choices = c("All", "Yes", "No")),
           selectInput("group_by", "Compare groups by", choices = c("Branch", "Batch", "Mentorship")),
           selectInput("metric_by", "Measure", choices = pretty_names, selected = "Event_Attendance"),
           selectInput("cor_x", "Correlation: X variable", choices = pretty_names, selected = "Event_Attendance"),
@@ -174,6 +178,8 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   updateSelectInput(session, "filter_branch", choices = c("All", sort(unique(alumni$Branch))))
   updateSelectInput(session, "filter_batch", choices = c("All", sort(unique(alumni$Batch))))
+  updateSelectInput(session, "analysis_branch", choices = c("All", sort(unique(alumni$Branch))))
+  updateSelectInput(session, "analysis_batch", choices = c("All", sort(unique(alumni$Batch))))
   updateSelectInput(session, "chart_x", choices = pretty_names)
   updateSelectInput(session, "chart_y", choices = pretty_names)
 
@@ -208,7 +214,7 @@ server <- function(input, output, session) {
     if (!is.null(input$filter_batch) && input$filter_batch != "All") d <- d %>% filter(Batch == as.numeric(input$filter_batch))
     if (!is.null(input$filter_mentorship) && input$filter_mentorship != "All") d <- d %>% filter(Mentorship == input$filter_mentorship)
     q <- trimws(input$search_id %||% "")
-    if (nzchar(q)) d <- d %>% filter(grepl(q, Name, ignore.case = TRUE) | grepl(q, Alumni_ID, ignore.case = TRUE))
+    if (nzchar(q)) d <- d %>% filter(grepl(q, Name, ignore.case = TRUE, fixed = TRUE) | grepl(q, Alumni_ID, ignore.case = TRUE, fixed = TRUE))
     d
   })
 
@@ -236,10 +242,26 @@ server <- function(input, output, session) {
     content = function(file) write_csv(filtered(), file)
   )
 
+  analysis_data <- reactive({
+    d <- alumni
+    if (!is.null(input$analysis_branch) && input$analysis_branch != "All") {
+      d <- d %>% filter(Branch == input$analysis_branch)
+    }
+    if (!is.null(input$analysis_batch) && input$analysis_batch != "All") {
+      d <- d %>% filter(Batch == as.numeric(input$analysis_batch))
+    }
+    if (!is.null(input$analysis_mentorship) && input$analysis_mentorship != "All") {
+      d <- d %>% filter(Mentorship == input$analysis_mentorship)
+    }
+    d
+  })
+
   group_data <- reactive({
+    d <- analysis_data()
+    validate(need(nrow(d) > 0, "No records match these cohort filters."))
     g <- input$group_by
     m <- input$metric_by
-    alumni %>% group_by(.data[[g]]) %>%
+    d %>% group_by(.data[[g]]) %>%
       summarise(Records = n(), Mean = mean(.data[[m]], na.rm = TRUE),
                 Median = median(.data[[m]], na.rm = TRUE), .groups = "drop") %>%
       arrange(desc(Mean))
@@ -257,8 +279,10 @@ server <- function(input, output, session) {
   output$group_table <- renderTable(group_data(), digits = 2, striped = TRUE, spacing = "s")
 
   output$correlation_plot <- renderPlot({
-    validate(need(input$cor_x != input$cor_y, "Choose two different variables to inspect a relationship."))
-    ggplot(alumni, aes(x = .data[[input$cor_x]], y = .data[[input$cor_y]])) +
+    d <- analysis_data()
+    validate(need(nrow(d) > 1, "Choose filters that leave at least two records."),
+             need(input$cor_x != input$cor_y, "Choose two different variables to inspect a relationship."))
+    ggplot(d, aes(x = .data[[input$cor_x]], y = .data[[input$cor_y]])) +
       geom_point(alpha = .65, color = "#4058c8") +
       geom_smooth(method = "lm", se = FALSE, color = "#d97745") +
       labs(x = pretty_names[[input$cor_x]], y = pretty_names[[input$cor_y]],
@@ -266,10 +290,13 @@ server <- function(input, output, session) {
       theme_minimal(base_size = 12)
   })
   output$correlation_value <- renderText({
+    d <- analysis_data()
+    if (nrow(d) < 2) return("Choose filters that leave at least two records.")
     if (input$cor_x == input$cor_y) return("Choose two different variables.")
-    r <- cor(alumni[[input$cor_x]], alumni[[input$cor_y]], use = "complete.obs")
+    r <- cor(d[[input$cor_x]], d[[input$cor_y]], use = "complete.obs")
     paste0("Pearson correlation: ", round(r, 3),
-           ". This describes linear association in the synthetic sample; it does not establish causation.")
+           " (n = ", sum(complete.cases(d[, c(input$cor_x, input$cor_y)])),
+           "). This describes linear association in the filtered synthetic sample; it does not establish causation.")
   })
 
   output$custom_plot <- renderPlot({
