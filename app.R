@@ -201,8 +201,11 @@ server <- function(input, output, session) {
   updateSelectInput(session, "filter_batch", choices = c("All", sort(unique(alumni$Batch))))
   updateSelectInput(session, "analysis_branch", choices = c("All", sort(unique(alumni$Branch))))
   updateSelectInput(session, "analysis_batch", choices = c("All", sort(unique(alumni$Batch))))
-  updateSelectInput(session, "chart_x", choices = pretty_names)
-  updateSelectInput(session, "chart_y", choices = pretty_names)
+  updateSelectInput(session, "metric_by", choices = pretty_names, selected = "Event_Attendance")
+  updateSelectInput(session, "cor_x", choices = pretty_names, selected = "Event_Attendance")
+  updateSelectInput(session, "cor_y", choices = pretty_names, selected = "Email_Response")
+  updateSelectInput(session, "chart_x", choices = pretty_names, selected = "Event_Attendance")
+  updateSelectInput(session, "chart_y", choices = pretty_names, selected = "Email_Response")
 
   output$metric_records <- renderText(format(nrow(alumni), big.mark = ","))
   output$metric_variables <- renderText(ncol(alumni))
@@ -364,7 +367,7 @@ server <- function(input, output, session) {
     validate(need(nrow(d) > 0, "No records match these cohort filters."))
     g <- input$group_by
     m <- input$metric_by
-    d %>% group_by(.data[[g]]) %>%
+    d %>% mutate(Group = as.character(.data[[g]])) %>% group_by(Group) %>%
       summarise(Records = n(), Mean = mean(.data[[m]], na.rm = TRUE),
                 Median = median(.data[[m]], na.rm = TRUE), .groups = "drop") %>%
       arrange(desc(Mean))
@@ -372,7 +375,7 @@ server <- function(input, output, session) {
 
   output$group_plot <- renderPlot({
     d <- group_data()
-    ggplot(d, aes(x = reorder(as.character(.data[[input$group_by]]), Mean), y = Mean)) +
+    ggplot(d, aes(x = reorder(Group, Mean), y = Mean)) +
       geom_col(fill = "#4058c8", width = .7) +
       coord_flip() +
       labs(x = NULL, y = paste("Mean", pretty_names[[input$metric_by]]),
