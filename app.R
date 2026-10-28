@@ -72,7 +72,7 @@ ui <- fluidPage(
       ),
       fluidRow(
         column(8, div(class = "panel", h4("Engagement by graduation batch"),
-                      plotOutput("overview_batch", height = 300))),
+                      plotOutput("overview_batch", height = 300, alt = "Bar chart showing average event attendance by graduation batch"))),
         column(4, div(class = "panel", h4("Dataset snapshot"),
                       tableOutput("overview_snapshot"),
                       p(class = "small-note", "Counts and averages are calculated from the cleaned synthetic dataset.")))
