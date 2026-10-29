@@ -123,9 +123,9 @@ ui <- fluidPage(
           selectInput("analysis_batch", "Graduation batch", choices = c("All")),
           selectInput("analysis_mentorship", "Mentorship", choices = c("All", "Yes", "No")),
           selectInput("group_by", "Compare groups by", choices = c("Branch", "Batch", "Mentorship")),
-          selectInput("metric_by", "Measure", choices = pretty_names, selected = "Event_Attendance"),
-          selectInput("cor_x", "Correlation: X variable", choices = pretty_names, selected = "Event_Attendance"),
-          selectInput("cor_y", "Correlation: Y variable", choices = pretty_names, selected = "Email_Response")
+          selectInput("metric_by", "Measure", choices = setNames(names(pretty_names), unname(pretty_names)), selected = "Event_Attendance"),
+          selectInput("cor_x", "Correlation: X variable", choices = setNames(names(pretty_names), unname(pretty_names)), selected = "Event_Attendance"),
+          selectInput("cor_y", "Correlation: Y variable", choices = setNames(names(pretty_names), unname(pretty_names)), selected = "Email_Response")
         )),
         column(9,
           div(class = "panel", h4("Group comparison"), plotOutput("group_plot", height = 320), tableOutput("group_table")),
@@ -142,8 +142,8 @@ ui <- fluidPage(
             choices = c("Distribution (histogram)" = "hist",
                         "Group comparison (boxplot)" = "box",
                         "Relationship (scatterplot)" = "scatter")),
-          selectInput("chart_x", "X variable", choices = pretty_names, selected = "Event_Attendance"),
-          selectInput("chart_y", "Y variable (scatter only)", choices = pretty_names, selected = "Email_Response"),
+          selectInput("chart_x", "X variable", choices = setNames(names(pretty_names), unname(pretty_names)), selected = "Event_Attendance"),
+          selectInput("chart_y", "Y variable (scatter only)", choices = setNames(names(pretty_names), unname(pretty_names)), selected = "Email_Response"),
           selectInput("chart_group", "Group by (optional)", choices = c("None", "Branch", "Batch", "Mentorship"))
         )),
         column(9, div(class = "panel", h4("Your visualization"), plotOutput("custom_plot", height = 420),
@@ -201,11 +201,11 @@ server <- function(input, output, session) {
   updateSelectInput(session, "filter_batch", choices = c("All", sort(unique(alumni$Batch))))
   updateSelectInput(session, "analysis_branch", choices = c("All", sort(unique(alumni$Branch))))
   updateSelectInput(session, "analysis_batch", choices = c("All", sort(unique(alumni$Batch))))
-  updateSelectInput(session, "metric_by", choices = pretty_names, selected = "Event_Attendance")
-  updateSelectInput(session, "cor_x", choices = pretty_names, selected = "Event_Attendance")
-  updateSelectInput(session, "cor_y", choices = pretty_names, selected = "Email_Response")
-  updateSelectInput(session, "chart_x", choices = pretty_names, selected = "Event_Attendance")
-  updateSelectInput(session, "chart_y", choices = pretty_names, selected = "Email_Response")
+  updateSelectInput(session, "metric_by", choices = setNames(names(pretty_names), unname(pretty_names)), selected = "Event_Attendance")
+  updateSelectInput(session, "cor_x", choices = setNames(names(pretty_names), unname(pretty_names)), selected = "Event_Attendance")
+  updateSelectInput(session, "cor_y", choices = setNames(names(pretty_names), unname(pretty_names)), selected = "Email_Response")
+  updateSelectInput(session, "chart_x", choices = setNames(names(pretty_names), unname(pretty_names)), selected = "Event_Attendance")
+  updateSelectInput(session, "chart_y", choices = setNames(names(pretty_names), unname(pretty_names)), selected = "Email_Response")
 
   output$metric_records <- renderText(format(nrow(alumni), big.mark = ","))
   output$metric_variables <- renderText(ncol(alumni))
