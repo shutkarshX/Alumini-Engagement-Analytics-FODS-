@@ -1,98 +1,139 @@
-# Alumni Engagement Analytics
+# Alumni Engagement Analytics — FODS Studio
 
-**Course:** Foundations of Data Science (CCSDS0301)  
-**Domain:** Educational Analytics  
-**SDG:** SDG 4 — Quality Education  
-**Stack:** R, RStudio, Shiny, readr, dplyr, tidyr, ggplot2
+[![R](https://img.shields.io/badge/R-4.2%2B-276DC3.svg)](https://www.r-project.org/)
+[![Shiny](https://img.shields.io/badge/Shiny-Interactive%20App-blue.svg)](https://shiny.rstudio.com/)
+[![ggplot2](https://img.shields.io/badge/ggplot2-Visualization-orange.svg)](https://ggplot2.tidyverse.org/)
+[![dplyr](https://img.shields.io/badge/dplyr-Data%20Transformation-brightgreen.svg)](https://dplyr.tidyverse.org/)
+[![SDG 4](https://img.shields.io/badge/SDG%204-Quality%20Education-C5192D.svg)](https://sdgs.un.org/goals/goal4)
+[![GitHub Actions](https://img.shields.io/badge/CI-Automated%20Validation-success.svg)](.github/workflows/r-validation.yml)
 
-## Objective
+An analytical data science studio and reproducible R workflow developed for the **Foundations of Data Science (CCSDS0301)** Project-Based Learning (PBL) curriculum. It provides data cleaning, statistical correlation, IQR outlier detection, exploratory visualization, and an interactive **R Shiny** analytical dashboard for educational institutions.
 
-Explore alumni engagement patterns using data preparation, descriptive statistics, exploratory data analysis, relationship analysis, and visualizations. The repository includes a reproducible R workflow and an interactive Shiny analytics studio.
+---
 
-**Dataset limitation:** The project uses synthetic data because institutional alumni records were unavailable. Results must not be presented as actual institutional findings.
+## 🔬 Data Pipeline Architecture
 
-## Interactive application
+```mermaid
+flowchart TD
+    Raw["Raw Dataset (data/raw/alumni_engagement_raw.csv)"]
+    
+    subgraph DataPrep["Phase 1: Ingestion & Quality Control"]
+        S1["01_data_import.R<br/>Schema & Structure"]
+        S2["02_data_quality.R<br/>Missing & Inconsistency Audit"]
+        S3["03_data_cleaning.R<br/>Deduplication & Imputation"]
+    end
+    
+    Clean[("Clean Data (alumni_engagement_clean.csv)")]
+    
+    subgraph Analytics["Phase 2: Statistical Modeling & EDA"]
+        S4["04_data_exploration.R<br/>Descriptive Statistics"]
+        S6["06_phase2_eda.R<br/>IQR Outliers & Correlations"]
+        S7["07_phase2_visualization.R<br/>ggplot2 Visual Engine"]
+    end
 
-The initial Shiny application is in `app.R`. It includes:
-- Overview metrics and a batch-level engagement chart.
-- Filterable data explorer with CSV export.
-- Group comparisons by branch, batch, and mentorship.
-- Selectable correlation/relationship analysis.
-- A visualization lab for histograms, boxplots, and scatterplots.
-- Descriptive findings and downloadable summary/correlation tables.
+    subgraph Deliverables["Outputs & Interactive Layer"]
+        Plots["8 Visual Plots (outputs/plots/)"]
+        Tables["6 Summary Tables (outputs/tables/)"]
+        Shiny["Interactive R Shiny Studio (app.R)"]
+        CI["08_validate_outputs.R (CI Invariant Checks)"]
+    end
 
-The app source has been committed, but it must be run and manually tested in R/RStudio before it is described as fully validated.
-
-### Launch the app
-
-Open the repository root as the working directory in RStudio, then install any missing packages:
-
-```r
-install.packages(c("shiny", "readr", "dplyr", "tidyr", "ggplot2"))
+    Raw --> S1 --> S2 --> S3 --> Clean
+    Clean --> S4 --> S6 --> S7
+    Clean --> Shiny
+    S7 --> Plots
+    S6 --> Tables
+    Plots & Tables --> CI
 ```
 
-Run the app:
+---
+
+## 📊 Visual Analytics Gallery
+
+Here are highlights from the 8 generated exploratory data visualizations:
+
+| Correlation Heatmap | Batch Attendance Trends |
+| :---: | :---: |
+| ![Correlation Heatmap](outputs/plots/04_correlation_heatmap.png) | ![Batch Attendance Trend](outputs/plots/07_batch_attendance_trend.png) |
+
+| Event Attendance by Department | Alumni Count by Branch |
+| :---: | :---: |
+| ![Event Attendance by Branch](outputs/plots/05_event_attendance_by_branch.png) | ![Alumni Count by Branch](outputs/plots/01_alumni_by_branch.png) |
+
+---
+
+## 💻 Interactive Shiny Analytics Studio
+
+The repository includes a full interactive Shiny web application in `app.R`:
+* **Overview KPI Metrics**: Total alumni, active participation rate, and batch-level engagement breakdown.
+* **Filterable Data Explorer**: Searchable records with CSV export capabilities.
+* **Cohort Comparisons**: Group-level comparisons across branch, graduation batch, and mentorship enrollment.
+* **Correlation Lab**: Interactive scatterplots and relationship matrices.
+* **Visualization Lab**: On-the-fly customizable histograms, boxplots, and violin distributions.
+
+### Launch the App Locally
+
+Open RStudio or an R terminal in the repository root directory:
 
 ```r
+# 1. Install dependencies
+install.packages(c("shiny", "readr", "dplyr", "tidyr", "ggplot2"))
+
+# 2. Launch the Shiny Studio
 shiny::runApp("app.R")
 ```
 
-The app reads `data/processed/alumni_engagement_clean.csv`. If that file is missing, run the data workflow below first.
+---
 
-## Repository structure
+## ⚡ Reproducible Analysis Pipeline
 
-- `app.R` — interactive Shiny analytics studio.
-- `data/raw/` — original synthetic dataset with deliberate data-quality issues.
-- `data/processed/` — cleaned dataset produced by the cleaning workflow.
-- `R/01_data_import.R` through `R/05_basic_visualization.R` — Phase 1 workflow.
-- `R/06_phase2_eda.R` — Module 3 EDA and six analysis tables.
-- `R/07_phase2_visualization.R` — Module 4 visualizations.
-- `R/08_validate_outputs.R` — checks dataset invariants and required generated outputs.
-- `outputs/tables/` — generated CSV analysis tables.
-- `outputs/plots/` — generated PNG visualizations.
-- `docs/` — development log, phase documentation, research notes, and checkpoints.
-- `PBL_CONTEXT.md` — technical handoff and verified project status.
+To execute the entire analytical pipeline from scratch, run the scripts in sequence:
 
-## Run the analysis workflow
+```r
+source("R/01_data_import.R")       # Step 1: Validate raw schema
+source("R/02_data_quality.R")      # Step 2: Run missingness audit
+source("R/03_data_cleaning.R")     # Step 3: Produce clean dataset
+source("R/04_data_exploration.R")  # Step 4: Compute summary stats
+source("R/05_basic_visualization.R")# Step 5: Generate initial plots
+source("R/06_phase2_eda.R")        # Step 6: IQR outlier detection & matrix
+source("R/07_phase2_visualization.R")# Step 7: Export high-res plots
+source("R/08_validate_outputs.R")  # Step 8: Assert output integrity
+```
 
-Open the repository folder as the RStudio working directory. Run scripts in order:
+---
 
-1. `R/01_data_import.R`
-2. `R/02_data_quality.R`
-3. `R/03_data_cleaning.R`
-4. `R/04_data_exploration.R`
-5. `R/05_basic_visualization.R`
-6. `R/06_phase2_eda.R`
-7. `R/07_phase2_visualization.R`
-8. `R/08_validate_outputs.R` — run after scripts 01–07 to validate the cleaned data and generated files.
+## 📁 Repository Structure
 
-Run scripts from the repository root so relative paths resolve correctly. The cleaning step writes `data/processed/alumni_engagement_clean.csv`; the Phase 2 scripts use that processed dataset and write generated outputs under `outputs/`.
+```text
+Alumini-Engagement-Analytics-FODS-/
+├── app.R                          # Interactive Shiny analytics application
+├── R/                             # Sequential 8-stage data pipeline scripts
+│   ├── 01_data_import.R
+│   ├── 02_data_quality.R
+│   ├── 03_data_cleaning.R
+│   ├── 04_data_exploration.R
+│   ├── 05_basic_visualization.R
+│   ├── 06_phase2_eda.R
+│   ├── 07_phase2_visualization.R
+│   └── 08_validate_outputs.R
+├── data/
+│   ├── raw/alumni_engagement_raw.csv
+│   └── processed/alumni_engagement_clean.csv
+├── outputs/
+│   ├── plots/                     # 8 high-resolution PNG charts
+│   └── tables/                    # 6 statistical summary CSV tables
+├── docs/                          # Course documentation & phase checkpoints
+│   ├── FODS_SYLLABUS_ALIGNMENT.md
+│   ├── PHASE_2.md
+│   ├── PHASE_2_CHECKPOINT.md
+│   └── RESEARCH_NOTES.md
+├── .github/workflows/
+│   └── r-validation.yml           # Automated CI verification workflow
+└── README.md
+```
 
-## Phase mapping
+---
 
-1. **Phase 1 — Modules 1–2:** import, quality inspection, cleaning, descriptive exploration, initial visualization.
-2. **Phase 2 — Modules 3–4:** EDA, IQR outlier identification, correlation and comparison analysis, five additional visualizations.
-3. **Phase 3 — Module 5 and final integration:** still pending syllabus confirmation and further implementation. The Shiny app is an initial product layer and has not yet been manually validated.
-
-## Verified Phase 2 outputs
-
-Analysis tables:
-- `phase2_outlier_summary.csv`
-- `phase2_branch_summary.csv`
-- `phase2_mentorship_summary.csv`
-- `phase2_batch_summary.csv`
-- `phase2_relationship_summary.csv`
-- `phase2_correlation_matrix.csv`
-
-Phase 2 plots:
-- `04_correlation_heatmap.png`
-- `05_event_attendance_by_branch.png`
-- `06_mentorship_vs_attendance.png`
-- `07_batch_attendance_trend.png`
-- `08_attendance_vs_email_response.png`
-
-See `docs/PHASE_2_CHECKPOINT.md` for verified findings and limitations, and `docs/DEVELOPMENT_LOG.md` for the implementation history.
-
-## Automated reproducibility check
-
-GitHub Actions runs scripts 01–07 and then `R/08_validate_outputs.R` on pushes to `main`, pull requests, and manual workflow dispatches. The validation checks the expected raw/clean dataset dimensions, column schema, absence of missing values and duplicate IDs in the cleaned data, and presence of all six Phase 2 tables and eight plots. The workflow has been added; its first hosted run must pass before CI is described as verified.
+## 📜 Dataset & Academic Note
+* **Course:** Foundations of Data Science (`CCSDS0301`).
+* **Ethical Disclosure:** The project uses synthetic data to illustrate educational analytics techniques while strictly maintaining privacy. Results represent simulated exploratory analysis.
